@@ -274,32 +274,36 @@ export default function Page() {
       });
 
       if (!analiseRes.ok) {
-        throw new Error("Falha ao analisar imagem.");
+        const erroTexto = await analiseRes.text();
+        console.error("ERRO API:", erroTexto);
+        throw new Error(`Falha ao analisar imagem: ${erroTexto}`);
       }
 
       const analiseJson: Analise = await analiseRes.json();
 
-      setAnalise({
+      const analiseCompleta: Analise = {
         ...analiseJson,
-        artigos_adicionais: [],
-      });
+        artigos_adicionais: analiseJson.artigos_adicionais || [],
+      };
+
+      setAnalise(analiseCompleta);
 
       const calculoRes = await fetch("/api/orcamentos/calcular", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...analiseJson,
-          artigos_adicionais: [],
-        }),
+        body: JSON.stringify(analiseCompleta),
       });
 
       if (!calculoRes.ok) {
-        throw new Error("Falha ao calcular orçamento.");
+        const erroTexto = await calculoRes.text();
+        console.error("ERRO CALCULAR:", erroTexto);
+        throw new Error(`Falha ao calcular orçamento: ${erroTexto}`);
       }
 
       const calculoJson: Orcamento = await calculoRes.json();
       setOrcamento(calculoJson);
     } catch (e) {
+      console.error(e);
       setError(e instanceof Error ? e.message : "Ocorreu um erro.");
     } finally {
       setLoading(false);
@@ -360,12 +364,14 @@ export default function Page() {
       });
 
       if (!calculoRes.ok) {
-        throw new Error("Falha ao recalcular orçamento.");
+        const erroTexto = await calculoRes.text();
+        throw new Error(`Falha ao recalcular orçamento: ${erroTexto}`);
       }
 
       const calculoJson: Orcamento = await calculoRes.json();
       setOrcamento(calculoJson);
     } catch (e) {
+      console.error(e);
       setError(e instanceof Error ? e.message : "Erro no recálculo.");
     } finally {
       setLoading(false);
@@ -386,6 +392,7 @@ export default function Page() {
       });
 
       if (!res.ok) throw new Error("Erro ao guardar");
+
       alert("Orçamento guardado com sucesso.");
     } catch {
       alert("Erro ao guardar orçamento.");
@@ -521,13 +528,14 @@ export default function Page() {
                 <Label>Imagem do projeto</Label>
                 <Input
                   type="file"
-                  accept="image/*"
+                  accept="image/*,.jpg,.jpeg,.png,.webp"
                   onChange={(e) => setFile(e.target.files?.[0] || null)}
                 />
               </div>
 
               <div className="mt-6 flex flex-col gap-3 md:flex-row">
                 <button
+                  type="button"
                   onClick={gerarOrcamento}
                   disabled={loading}
                   className="rounded-2xl bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
@@ -536,6 +544,7 @@ export default function Page() {
                 </button>
 
                 <button
+                  type="button"
                   onClick={recalcular}
                   disabled={!analise || loading}
                   className="rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
@@ -731,6 +740,7 @@ export default function Page() {
 
                   <div className="mt-5 grid gap-3">
                     <button
+                      type="button"
                       onClick={guardarOrcamento}
                       className="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700"
                     >

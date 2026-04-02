@@ -1,14 +1,14 @@
 {
   "precoMetroLinear": {
     "Cozinha": {
-      "Gama Baixa": 550,
-      "Gama Média": 700,
-      "Gama Alta": 950
+      "Gama Baixa": 150,
+      "Gama Média": 175,
+      "Gama Alta": 200
     },
     "Roupeiro": {
-      "Gama Baixa": 500,
-      "Gama Média": 650,
-      "Gama Alta": 850
+      "Gama Baixa": 150,
+      "Gama Média": 300,
+      "Gama Alta": 380
     },
     "WC": {
       "Gama Baixa": 350,
@@ -23,25 +23,25 @@
   },
   "precoKm": 0.6,
   "margem": 0.5,
-  "montagemPorHomem": 225,
-  "dobradica": 8,
-  "corredica": 18,
-  "ledMetro": 25,
+  "montagemPorHomem": 175,
+  "dobradica": 3,
+  "corredica": 40,
+  "ledMetro": 11,
   "transportePorMetro": 20,
   "alojamentoPorNoite": 90,
   "vooPorPessoa": 180,
-  "tirPorMetro": 35,
+  "tirPorMetro": 50,
   "materiais": {
-    "Melamina branca": 40,
-    "Melamina carvalho": 45,
-    "MDF": 55,
-    "Carvalho": 80,
-    "Lacado mate": 120,
-    "Lacado brilho": 130
+    "Melamina branca": 10,
+    "Melamina carvalho": 15,
+    "MDF": 12,
+    "Carvalho": 81,
+    "Lacado mate": 80,
+    "Lacado brilho": 90
   },
   "artigosExtras": {
-    "Varão roupeiro": 18,
-    "Canto feijão": 95,
+    "Varão roupeiro": 15,
+    "Canto feijão": 175,
     "Sapateira extra": 75,
     "Puxador premium": 12,
     "Gaveteiro extra": 85,

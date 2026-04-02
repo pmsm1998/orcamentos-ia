@@ -9,6 +9,8 @@ export async function analisarImagem(file: File) {
   const buffer = Buffer.from(bytes);
   const base64 = buffer.toString("base64");
 
+  const mimeType = file.type || "image/jpeg";
+
   const response = await openai.responses.create({
     model: "gpt-5.4",
     input: [
@@ -63,7 +65,7 @@ Regras:
           },
           {
             type: "input_image",
-            image_url: `data:image/png;base64,${base64}`,
+            image_url: `data:${mimeType};base64,${base64}`,
             detail: "auto",
           },
         ],
