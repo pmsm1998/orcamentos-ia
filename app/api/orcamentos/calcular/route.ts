@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { calcularOrcamento } from "../../../../lib/orcamento";
+import { calcularOrcamento } from "@/lib/orcamento";
 
 export async function POST(req: Request) {
   const body = await req.json();

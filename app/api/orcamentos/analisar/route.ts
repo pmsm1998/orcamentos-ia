@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { analisarImagem } from "../../../../lib/ia";
+import { analisarImagem } from "@/lib/ia";
 
 export async function POST(req: Request) {
   const formData = await req.formData();
