@@ -2,28 +2,18 @@
 
 import { useEffect, useState } from "react";
 
+type Gamas = {
+  "Gama Baixa": number;
+  "Gama Média": number;
+  "Gama Alta": number;
+};
+
 type Config = {
   precoMetroLinear: {
-    Cozinha: {
-      "Gama Baixa": number;
-      "Gama Média": number;
-      "Gama Alta": number;
-    };
-    Roupeiro: {
-      "Gama Baixa": number;
-      "Gama Média": number;
-      "Gama Alta": number;
-    };
-    WC: {
-      "Gama Baixa": number;
-      "Gama Média": number;
-      "Gama Alta": number;
-    };
-    "Movel TV": {
-      "Gama Baixa": number;
-      "Gama Média": number;
-      "Gama Alta": number;
-    };
+    Cozinha: Gamas;
+    Roupeiro: Gamas;
+    WC: Gamas;
+    "Movel TV": Gamas;
   };
   precoKm: number;
   margem: number;
@@ -76,7 +66,7 @@ function CampoNumero({
   step,
 }: {
   titulo: string;
-  descricao: string;
+  descricao?: string;
   valor: number;
   onChange: (value: number) => void;
   step?: string;
@@ -84,13 +74,52 @@ function CampoNumero({
   return (
     <div>
       <label className="text-sm font-medium text-slate-700">{titulo}</label>
-      <p className="mb-2 mt-1 text-xs text-slate-500">{descricao}</p>
+      {descricao ? <p className="mb-2 mt-1 text-xs text-slate-500">{descricao}</p> : <div className="mb-2" />}
       <Input
         type="number"
         step={step}
         value={valor}
         onChange={(e) => onChange(Number(e.target.value))}
       />
+    </div>
+  );
+}
+
+function BlocoProjeto({
+  nome,
+  gamas,
+  onChange,
+}: {
+  nome: string;
+  gamas: Gamas;
+  onChange: (gama: keyof Gamas, value: number) => void;
+}) {
+  return (
+    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+      <h3 className="mb-4 text-lg font-semibold text-slate-900">{nome}</h3>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <CampoNumero
+          titulo="Gama Baixa"
+          descricao="Preço por metro linear."
+          valor={gamas["Gama Baixa"]}
+          onChange={(v) => onChange("Gama Baixa", v)}
+        />
+
+        <CampoNumero
+          titulo="Gama Média"
+          descricao="Preço por metro linear."
+          valor={gamas["Gama Média"]}
+          onChange={(v) => onChange("Gama Média", v)}
+        />
+
+        <CampoNumero
+          titulo="Gama Alta"
+          descricao="Preço por metro linear."
+          valor={gamas["Gama Alta"]}
+          onChange={(v) => onChange("Gama Alta", v)}
+        />
+      </div>
     </div>
   );
 }
@@ -112,16 +141,16 @@ export default function AdminPage() {
   function updateField(path: string, value: number) {
     if (!config) return;
 
-    const novo = structuredClone(config) as any;
+    const novo = structuredClone(config) as Record<string, any>;
     const keys = path.split(".");
-    let current = novo;
+    let current: Record<string, any> = novo;
 
     for (let i = 0; i < keys.length - 1; i++) {
       current = current[keys[i]];
     }
 
     current[keys[keys.length - 1]] = value;
-    setConfig(novo);
+    setConfig(novo as Config);
   }
 
   async function guardar() {
@@ -172,10 +201,11 @@ export default function AdminPage() {
               Valerie • Painel Admin
             </div>
             <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
-              Configuração por gamas
+              Configuração de preços
             </h1>
             <p className="mt-4 max-w-2xl text-base text-slate-300 md:text-lg">
-              Define preços por tipo de projeto e por gama: baixa, média e alta.
+              Define os preços por projeto e por gama, além dos restantes custos
+              gerais, materiais e artigos extra.
             </p>
           </div>
         </div>
@@ -183,27 +213,40 @@ export default function AdminPage() {
         <div className="grid gap-6">
           <Card
             title="Preço por metro linear"
-            subtitle="Valores base por projeto e por gama."
+            subtitle="Cada projeto tem as suas 3 gamas para colocares o valor por metro."
           >
-            <div className="space-y-8">
-              {Object.entries(config.precoMetroLinear).map(([tipoProjeto, gamas]) => (
-                <div key={tipoProjeto} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                  <h3 className="mb-4 text-lg font-semibold text-slate-900">{tipoProjeto}</h3>
-                  <div className="grid gap-5 md:grid-cols-3">
-                    {Object.entries(gamas).map(([gama, valor]) => (
-                      <CampoNumero
-                        key={`${tipoProjeto}-${gama}`}
-                        titulo={`${gama}`}
-                        descricao={`Preço por metro linear para ${tipoProjeto} na ${gama}.`}
-                        valor={valueAsNumber(valor)}
-                        onChange={(v) =>
-                          updateField(`precoMetroLinear.${tipoProjeto}.${gama}`, v)
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
+            <div className="space-y-5">
+              <BlocoProjeto
+                nome="Cozinha"
+                gamas={config.precoMetroLinear.Cozinha}
+                onChange={(gama, value) =>
+                  updateField(`precoMetroLinear.Cozinha.${gama}`, value)
+                }
+              />
+
+              <BlocoProjeto
+                nome="Roupeiro"
+                gamas={config.precoMetroLinear.Roupeiro}
+                onChange={(gama, value) =>
+                  updateField(`precoMetroLinear.Roupeiro.${gama}`, value)
+                }
+              />
+
+              <BlocoProjeto
+                nome="WC"
+                gamas={config.precoMetroLinear.WC}
+                onChange={(gama, value) =>
+                  updateField(`precoMetroLinear.WC.${gama}`, value)
+                }
+              />
+
+              <BlocoProjeto
+                nome="Movel TV"
+                gamas={config.precoMetroLinear["Movel TV"]}
+                onChange={(gama, value) =>
+                  updateField(`precoMetroLinear.Movel TV.${gama}`, value)
+                }
+              />
             </div>
           </Card>
 
@@ -339,8 +382,4 @@ export default function AdminPage() {
       </div>
     </main>
   );
-}
-
-function valueAsNumber(value: unknown) {
-  return typeof value === "number" ? value : Number(value || 0);
 }
