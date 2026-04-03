@@ -1,5 +1,8 @@
-function bufferToUint8Array(buffer: Buffer) {
-  return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+function bufferToArrayBuffer(buffer: Buffer): ArrayBuffer {
+  return buffer.buffer.slice(
+    buffer.byteOffset,
+    buffer.byteOffset + buffer.byteLength
+  ) as ArrayBuffer;
 }
 
 async function getDropboxAccessToken() {
@@ -78,7 +81,7 @@ export async function uploadJsonParaDropbox(
       }),
       "Content-Type": "application/octet-stream",
     },
-    body: bufferToUint8Array(contents) as any,
+    body: bufferToArrayBuffer(contents),
   });
 
   const text = await res.text();
@@ -109,7 +112,7 @@ export async function uploadBufferParaDropbox(
       }),
       "Content-Type": "application/octet-stream",
     },
-    body: bufferToUint8Array(buffer) as any,
+    body: bufferToArrayBuffer(buffer),
   });
 
   const text = await res.text();
