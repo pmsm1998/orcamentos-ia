@@ -24,14 +24,10 @@ function getDropboxEnv(): {
     throw new Error(`Faltam variáveis da Dropbox: ${missing.join(", ")}`);
   }
 
-  const clientId = rawClientId as string;
-  const clientSecret = rawClientSecret as string;
-  const refreshToken = rawRefreshToken as string;
-
   return {
-    clientId,
-    clientSecret,
-    refreshToken,
+    clientId: rawClientId,
+    clientSecret: rawClientSecret,
+    refreshToken: rawRefreshToken,
   };
 }
 
