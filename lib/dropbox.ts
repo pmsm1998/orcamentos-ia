@@ -81,7 +81,7 @@ export async function uploadJsonParaDropbox(
       }),
       "Content-Type": "application/octet-stream",
     },
-    body: bufferToArrayBuffer(contents),
+    body: bufferToArrayBuffer(contents) as BodyInit,
   });
 
   const text = await res.text();
@@ -112,7 +112,7 @@ export async function uploadBufferParaDropbox(
       }),
       "Content-Type": "application/octet-stream",
     },
-    body: bufferToArrayBuffer(buffer),
+    body: bufferToArrayBuffer(buffer) as BodyInit,
   });
 
   const text = await res.text();
