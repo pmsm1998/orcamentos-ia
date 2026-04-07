@@ -5,14 +5,26 @@ function bufferToArrayBuffer(buffer: Buffer): ArrayBuffer {
   ) as ArrayBuffer;
 }
 
-async function getDropboxAccessToken() {
-  const clientId = process.env.DROPBOX_APP_KEY;
-  const clientSecret = process.env.DROPBOX_APP_SECRET;
-  const refreshToken = process.env.DROPBOX_REFRESH_TOKEN;
+function getDropboxEnv() {
+  const clientId = process.env.DROPBOX_APP_KEY?.trim();
+  const clientSecret = process.env.DROPBOX_APP_SECRET?.trim();
+  const refreshToken = process.env.DROPBOX_REFRESH_TOKEN?.trim();
 
-  if (!clientId || !clientSecret || !refreshToken) {
-    throw new Error("Faltam variáveis da Dropbox.");
+  const missing: string[] = [];
+
+  if (!clientId) missing.push("DROPBOX_APP_KEY");
+  if (!clientSecret) missing.push("DROPBOX_APP_SECRET");
+  if (!refreshToken) missing.push("DROPBOX_REFRESH_TOKEN");
+
+  if (missing.length > 0) {
+    throw new Error(`Faltam variáveis da Dropbox: ${missing.join(", ")}`);
   }
+
+  return { clientId, clientSecret, refreshToken };
+}
+
+async function getDropboxAccessToken() {
+  const { clientId, clientSecret, refreshToken } = getDropboxEnv();
 
   const basic = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 
