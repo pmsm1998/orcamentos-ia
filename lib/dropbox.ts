@@ -5,54 +5,59 @@ function bufferToArrayBuffer(buffer: Buffer): ArrayBuffer {
   ) as ArrayBuffer;
 }
 
-function getDropboxEnv(): {
-  clientId: string;
-  clientSecret: string;
-  refreshToken: string;
-} {
-  const rawClientId = process.env.DROPBOX_APP_KEY?.trim();
-  const rawClientSecret = process.env.DROPBOX_APP_SECRET?.trim();
-  const rawRefreshToken = process.env.DROPBOX_REFRESH_TOKEN?.trim();
+function getDropboxEnv() {
+  const clientId = (process.env.DROPBOX_APP_KEY || "").trim();
+  const clientSecret = (process.env.DROPBOX_APP_SECRET || "").trim();
+  const refreshToken = (process.env.DROPBOX_REFRESH_TOKEN || "").trim();
 
   const missing: string[] = [];
 
-  if (!rawClientId) missing.push("DROPBOX_APP_KEY");
-  if (!rawClientSecret) missing.push("DROPBOX_APP_SECRET");
-  if (!rawRefreshToken) missing.push("DROPBOX_REFRESH_TOKEN");
+  if (!clientId) missing.push("DROPBOX_APP_KEY");
+  if (!clientSecret) missing.push("DROPBOX_APP_SECRET");
+  if (!refreshToken) missing.push("DROPBOX_REFRESH_TOKEN");
 
   if (missing.length > 0) {
     throw new Error(`Faltam variáveis da Dropbox: ${missing.join(", ")}`);
   }
 
   return {
-    clientId: rawClientId!,
-    clientSecret: rawClientSecret!,
-    refreshToken: rawRefreshToken!,
+    clientId,
+    clientSecret,
+    refreshToken,
   };
 }
 
 async function getDropboxAccessToken() {
   const { clientId, clientSecret, refreshToken } = getDropboxEnv();
 
-  const basic = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-
-  const body = new URLSearchParams();
-  body.set("grant_type", "refresh_token");
-  body.set("refresh_token", refreshToken);
-
   const res = await fetch("https://api.dropboxapi.com/oauth2/token", {
     method: "POST",
     headers: {
-      Authorization: `Basic ${basic}`,
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: body.toString(),
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+      client_id: clientId,
+      client_secret: clientSecret,
+    }).toString(),
   });
 
-  const data = await res.json();
+  const text = await res.text();
+
+  let data: any = {};
+  try {
+    data = JSON.parse(text);
+  } catch {
+    data = { raw: text };
+  }
 
   if (!res.ok) {
     throw new Error(`Erro ao obter access token Dropbox: ${JSON.stringify(data)}`);
+  }
+
+  if (!data.access_token) {
+    throw new Error("Dropbox não devolveu access_token.");
   }
 
   return data.access_token as string;
